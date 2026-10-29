@@ -1,0 +1,11 @@
+{
+  "name": "Static analysis report",
+  "summary": "Reads checkstyle, PMD or SpotBugs XML, counts by severity and publishes it.",
+  "author": "hummerstudio",
+  "license": "MIT",
+  "tags": [
+    "official-port",
+    "checkstyle-report"
+  ],
+  "homepage": "https://github.com/hummerstudio/jenkins-atom-checkstyle-report"
+}
