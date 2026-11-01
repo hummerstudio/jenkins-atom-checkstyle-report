@@ -46,13 +46,29 @@ public class CheckstyleReportAtom implements AtomTask {
         List<Finding> findings = new ArrayList<>();
         int total = 0;
 
+        List<String> unreadable = new ArrayList<>();
         for (Path file : files) {
-            for (Finding finding : parse(file)) {
+            List<Finding> parsed;
+            try {
+                parsed = parse(file);
+            } catch (RuntimeException e) {
+                // a half-written checkstyle-result.xml used to read as "this file has no violations",
+                // so a maxErrors gate passed on a file nobody had read
+                unreadable.add(file.getFileName() + ": " + e.getMessage());
+                continue;
+            }
+            for (Finding finding : parsed) {
                 findings.add(finding);
                 total++;
                 bySeverity.merge(finding.severity(), 1, Integer::sum);
                 byFile.merge(finding.file(), 1, Integer::sum);
             }
+        }
+        boolean allowUnreadable = context.getBooleanParam("allowUnreadableReports", false);
+        if (!unreadable.isEmpty() && !allowUnreadable) {
+            return AtomResult.error(ErrorType.USER, 40003,
+                    unreadable.size() + " of " + files.size() + " report(s) could not be parsed: "
+                            + unreadable.get(0) + " (set allowUnreadableReports=true to accept this)");
         }
 
         int errors = bySeverity.getOrDefault("error", 0) + bySeverity.getOrDefault("high", 0)
@@ -138,8 +154,9 @@ public class CheckstyleReportAtom implements AtomTask {
                 findings.add(new Finding(where, normalise(severity), "line " + error.getAttribute("line"),
                         abbreviate(message)));
             }
-        } catch (Exception ignored) {
-            // an unreadable report is not a build failure; the next one may be fine
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage(), e);
         }
         return findings;
     }

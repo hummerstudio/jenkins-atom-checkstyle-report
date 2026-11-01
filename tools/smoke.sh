@@ -65,4 +65,15 @@ dir="$(mktemp -d)"; printf '{}' >"$dir/input.json"
 run "$dir" >/dev/null 2>&1 && fail "no reports must fail"
 grep -q "no report matched" "$dir/output.json" || fail "message not readable"
 
-echo "smoke ok: checkstyle gate, raised limit, pmd priorities, spotbugs priority, no reports"
+# a report nobody could parse is not a report without violations
+dir="$(mktemp -d)"
+printf '<?xml version="1.0"?><checkstyle version="10.0"><file name="a.py"><error line="1" severity="warning" message="w"/></file></checkstyle>' >"$dir/good.xml"
+printf '<?xml version="1.0"?><checkstyle version="10.0"><file name="b.py"><error line="1" sever' >"$dir/half.xml"
+printf '{"pattern": "*.xml", "maxErrors": "0"}' >"$dir/input.json"
+if run "$dir" >/dev/null 2>&1; then fail "a truncated checkstyle report must fail the step"; fi
+grep -q '"errorCode":40003' "$dir/output.json" || fail "expected errorCode 40003: $(cat "$dir/output.json")"
+grep -q 'half.xml' "$dir/output.json" || fail "the failure must name the file: $(cat "$dir/output.json")"
+printf '{"pattern": "*.xml", "maxErrors": "0", "allowUnreadableReports": "true"}' >"$dir/input.json"
+run "$dir" >/dev/null 2>&1 || fail "allowUnreadableReports should let it through: $(cat "$dir/output.json")"
+
+echo "smoke ok: checkstyle gate, raised limit, pmd priorities, spotbugs priority, no reports, truncated report fails by default"
