@@ -1,7 +1,7 @@
 {
   "atomCode": "checkstyle-report",
   "name": "Static analysis report",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Reads checkstyle, PMD or SpotBugs XML, counts by severity and publishes it.",
   "execution": {
     "packagePath": "checkstyle-report.jar",
@@ -12,7 +12,7 @@
     "pattern": {
       "label": "报告 glob（逗号分隔）",
       "type": "vuex-input",
-      "default": "**/checkstyle-result.xml, **/pmd.xml, **/spotbugsXml.xml"
+      "default": "**/checkstyle-result.xml, **/pmd.xml, **/spotbugsXml.xml, **/cppcheck*.xml"
     },
     "label": {
       "label": "报告名称",

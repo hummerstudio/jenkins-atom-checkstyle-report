@@ -97,6 +97,9 @@ public class CheckstyleReportAtom implements AtomTask {
                     .data("total", String.valueOf(total))
                     .data("errors", String.valueOf(errors))
                     .data("warnings", String.valueOf(warnings))
+                    // the failing build must report the same counters as the passing one; a caller that
+                    // reacts to the failure still needs to know how many findings there were
+                    .data("infos", String.valueOf(infos))
                     .report("report", label, dir.toString(), "index.html");
         }
         return result;
@@ -137,6 +140,9 @@ public class CheckstyleReportAtom implements AtomTask {
                 Element error = (Element) errors.item(i);
                 String where = error.getAttribute("file");
                 if (where.isBlank()) {
+                    where = error.getAttribute("file0");   // cppcheck names the file file0
+                }
+                if (where.isBlank()) {
                     org.w3c.dom.Node parent = error.getParentNode();
                     while (parent instanceof Element element && where.isBlank()) {
                         where = element.getAttribute("name");
@@ -150,6 +156,12 @@ public class CheckstyleReportAtom implements AtomTask {
                 String message = error.getAttribute("message");
                 if (message.isBlank()) {
                     message = error.getAttribute("rule");
+                }
+                if (message.isBlank()) {
+                    message = error.getAttribute("msg");   // cppcheck: msg + id instead of message
+                }
+                if (message.isBlank()) {
+                    message = error.getAttribute("id");
                 }
                 findings.add(new Finding(where, normalise(severity), "line " + error.getAttribute("line"),
                         abbreviate(message)));
@@ -177,6 +189,8 @@ public class CheckstyleReportAtom implements AtomTask {
             case "1", "high", "error", "blocker" -> "error";
             case "2", "medium", "warning", "major" -> "warning";
             case "3", "4", "low", "info", "minor", "ignore" -> "info";
+            // cppcheck's lower severities: they are notes, not failures
+            case "style", "performance", "portability", "information", "debug" -> "info";
             default -> value.isEmpty() ? "info" : value;
         };
     }

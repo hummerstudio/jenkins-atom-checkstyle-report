@@ -76,4 +76,21 @@ grep -q 'half.xml' "$dir/output.json" || fail "the failure must name the file: $
 printf '{"pattern": "*.xml", "maxErrors": "0", "allowUnreadableReports": "true"}' >"$dir/input.json"
 run "$dir" >/dev/null 2>&1 || fail "allowUnreadableReports should let it through: $(cat "$dir/output.json")"
 
-echo "smoke ok: checkstyle gate, raised limit, pmd priorities, spotbugs priority, no reports, truncated report fails by default"
+# cppcheck writes <results><errors><error id severity msg file0 line/>: different attribute names, same meaning
+dir="$(mktemp -d)"
+printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<results version="2"><cppcheck version="2.13"/><errors>' \
+  '<error id="nullPointer" severity="error" msg="Null pointer dereference: p" file0="src/main.c" line="42"/>' \
+  '<error id="unusedVariable" severity="style" msg="Unused variable: x" file0="src/main.c" line="7"/>' \
+  '<error id="arrayIndexOutOfBounds" severity="warning" msg="Index out of bounds" file0="src/util.c" line="13"/>' \
+  '</errors></results>' >"$dir/cppcheck.xml"
+printf '{"pattern": "*.xml", "maxErrors": "0"}' >"$dir/input.json"
+if run "$dir" >/dev/null 2>&1; then fail "an error-level cppcheck finding must fail maxErrors=0"; fi
+grep -q '"total":{"type":"string","value":"3"}' "$dir/output.json" || fail "cppcheck total: $(cat "$dir/output.json")"
+grep -q '"errors":{"type":"string","value":"1"}' "$dir/output.json" || fail "cppcheck errors: $(cat "$dir/output.json")"
+grep -q '"warnings":{"type":"string","value":"1"}' "$dir/output.json" || fail "cppcheck warnings: $(cat "$dir/output.json")"
+grep -q '"infos":{"type":"string","value":"1"}' "$dir/output.json" || fail "cppcheck infos (style -> info): $(cat "$dir/output.json")"
+# 明细在报告里，不在 output.json：失败结果只带计数
+grep -q 'src/main.c' "$dir/out/static-analysis/index.html" || fail "file0 was not used as the location"
+grep -q 'Null pointer' "$dir/out/static-analysis/index.html" || fail "msg was not used as the message"
+
+echo "smoke ok: checkstyle gate, raised limit, pmd priorities, spotbugs priority, no reports, truncated report fails by default, cppcheck"
