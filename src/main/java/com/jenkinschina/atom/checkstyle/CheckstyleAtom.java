@@ -1,4 +1,4 @@
-package com.jenkinschina.atom.checkstylereport;
+package com.jenkinschina.atom.checkstyle;
 
 import com.jenkinschina.atom.sdk.AtomContext;
 import com.jenkinschina.atom.sdk.AtomResult;
@@ -26,7 +26,7 @@ import org.w3c.dom.NodeList;
  * <p>The three formats share {@code file → error/warning/bugInstance}, so one reader covers the family. The gate counts
  * <em>errors</em> only by default: a warning budget is a team decision, a failing error is not.
  */
-public class CheckstyleReportAtom implements AtomTask {
+public class CheckstyleAtom implements AtomTask {
 
     @Override
     public AtomResult run(AtomContext context) throws Exception {

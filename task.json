@@ -1,12 +1,12 @@
 {
-  "atomCode": "checkstyle-report",
+  "atomCode": "checkstyle",
   "name": "Static analysis report",
   "version": "1.2.0",
   "description": "Reads checkstyle, PMD or SpotBugs XML, counts by severity and publishes it.",
   "execution": {
-    "packagePath": "checkstyle-report.jar",
+    "packagePath": "checkstyle.jar",
     "language": "java",
-    "target": "$atom_java_path -cp checkstyle-report.jar com.jenkinschina.atom.sdk.AtomRunner"
+    "target": "$atom_java_path -cp checkstyle.jar com.jenkinschina.atom.sdk.AtomRunner"
   },
   "input": {
     "pattern": {

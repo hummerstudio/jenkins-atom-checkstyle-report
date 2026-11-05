@@ -35,9 +35,9 @@ mkdir -p "$classes/META-INF/services"
 cp src/main/resources/META-INF/services/* "$classes/META-INF/services/"
 ( cd "$sdk" && "$JAR" xf "$SDK_JAR" && rm -rf META-INF/MANIFEST.MF META-INF/services )
 
-rm -rf dist/checkstyle-report
-mkdir -p dist/checkstyle-report
-"$JAR" --create --file dist/checkstyle-report/checkstyle-report.jar -C "$classes" . -C "$sdk" .
-cp task.json dist/checkstyle-report/
-[ -f meta.json ] && cp meta.json dist/checkstyle-report/
-echo "built dist/checkstyle-report: $(ls dist/checkstyle-report | tr '\n' ' ')"
+rm -rf dist/checkstyle
+mkdir -p dist/checkstyle
+"$JAR" --create --file dist/checkstyle/checkstyle.jar -C "$classes" . -C "$sdk" .
+cp task.json dist/checkstyle/
+[ -f meta.json ] && cp meta.json dist/checkstyle/
+echo "built dist/checkstyle: $(ls dist/checkstyle | tr '\n' ' ')"

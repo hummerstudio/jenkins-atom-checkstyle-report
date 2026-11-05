@@ -1,4 +1,4 @@
-# jenkins-atom-checkstyle-report
+# jenkins-atom-checkstyle
 
 Static analysis report — port of **checkstyle / pmd / spotbugs** (约 30,000（合计）) as an atom.
 

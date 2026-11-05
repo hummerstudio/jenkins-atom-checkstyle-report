@@ -27,5 +27,5 @@ jobs:
         run: ./tools/smoke.sh
       - uses: actions/upload-artifact@v4
         with:
-          name: checkstyle-report-atom
-          path: dist/checkstyle-report/
+          name: checkstyle-atom
+          path: dist/checkstyle/
