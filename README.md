@@ -5,9 +5,8 @@ Static analysis report — port of **checkstyle / pmd / spotbugs** (约 30,000�
 The three tools share `file → finding`, so one reader covers the family. Only error-level findings fail the
 build by default: a warning budget is a team decision.
 
-## Build and smoke test
+## Build and test
 
 ```bash
-./build.sh
-./tools/smoke.sh
+mvn verify
 ```
